@@ -50,13 +50,21 @@ def view_all_users():
 def main():
     
     title = st.title("Titanic")
-
-    placeholder = st.sidebar.empty()
     
-    dashboard_tab = st.sidebar.beta_expander("Dashboard")
-    dashboard_selectbox = dashboard_tab.selectbox("", ["Sign In", "Sign Up", "Classify Risk", "Show Risk Model", "Reports"])
+    #might need to add placeholder to make this work
+    placeholder = st.empty()
+    
+    username_text = st.sidebar.text("")
+    
+    account_tab = st.sidebar.beta_expander("Accounts")
+    account_selectbox = account_tab.selectbox("", ["Sign In", "Sign Up"])
 
-    if dashboard_selectbox == "Sign In":
+    dashboard_tab = st.sidebar.beta_expander("Dashboard")
+                    
+    risk_tab = st.sidebar.beta_expander("Risk Modules")
+    risk_selectbox = risk_tab.selectbox("", ["Classify Risk", "Show Risk Model", "Reports"])    
+
+    if account_selectbox == "Sign In":
         sign_in_container = st.beta_container()
         with sign_in_container:
             st.header("Sign In")
@@ -68,11 +76,11 @@ def main():
                 result = login_user(sign_in_username_input, check_hashes(sign_in_password_input, hashed_sign_in_password), "users")
                 if result:
                     st.success("Logged In as {}".format(sign_in_username_input))
-                    placeholder.text(f'{sign_in_username_input}')
+                    username_text.text(f'{sign_in_username_input}')
                 else:
                     st.warning("Incorrect Username/Password")
             
-    elif dashboard_selectbox == "Sign Up":
+    elif account_selectbox == "Sign Up":
         sign_up_container = st.beta_container()
         with sign_up_container:
             st.header("Sign Up")
@@ -90,22 +98,17 @@ def main():
                     st.success("You have successfully created a valid account")
                     st.info("Go To Sign In Menu")
 
-    elif dashboard_selectbox == "Classify Risk":
+    if risk_selectbox == "Classify Risk":
         classify_risk_container = st.beta_container()
         with classify_risk_container:
-            st.header("Classify Risk")
             st.write("Put your work here")
-            
-    elif dashboard_selectbox == "Show Risk Model":
+    elif risk_selectbox == "Show Risk Model":
         show_risk_model_container = st.beta_container()
         with show_risk_model_container:
-            st.header("Show Risk Model")
             st.write("Put your work here")
-            
-    elif dashboard_selectbox == "Reports":
+    elif risk_selectbox == "Reports":
         reports_container = st.beta_container()
         with reports_container:
-            st.header("Reports")
             st.write("Put your work here")
 
 if __name__ == '__main__':
