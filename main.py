@@ -28,7 +28,6 @@ def add_userdata(username, password, table_name):
 def check_if_user_exists(username, table_name):
     c.execute(f'SELECT EXISTS(SELECT * FROM {table_name} WHERE username = ?)', (username,))
     [exists] = c.fetchone()
-    print([exists])
     if exists:
         return True
     else:
@@ -50,63 +49,56 @@ def view_all_users():
 def main():
     
     title = st.title("Titanic")
-
-    placeholder = st.sidebar.empty()
     
-    dashboard_tab = st.sidebar.beta_expander("Dashboard")
-    dashboard_selectbox = dashboard_tab.selectbox("", ["Sign In", "Sign Up", "Classify Risk", "Show Risk Model", "Reports"])
-
-    if dashboard_selectbox == "Sign In":
-        sign_in_container = st.beta_container()
-        with sign_in_container:
-            st.header("Sign In")
-            sign_in_username_input = st.text_input("Username", max_chars=16)
-            sign_in_password_input = st.text_input("Password", type="password", max_chars=16)
-            sign_in_enter_button = st.button("Enter")
-            if sign_in_enter_button:
+    navigation_pane = st.sidebar
+    account_tab = navigation_pane.beta_expander("Account")
+    account_selectbox = account_tab.selectbox("", ["Sign In", "Sign Up"])
+    if account_selectbox == "Sign In":
+            account_tab.header("Sign In")
+            sign_in_username_input = account_tab.text_input("Username", max_chars=16)
+            sign_in_password_input = account_tab.text_input("Password", type="password", max_chars=16)
+            sign_in_check_box = account_tab.checkbox("Enter")
+            if sign_in_check_box:
                 hashed_sign_in_password = generate_hash(sign_in_password_input)
                 result = login_user(sign_in_username_input, check_hashes(sign_in_password_input, hashed_sign_in_password), "users")
                 if result:
-                    st.success("Logged In as {}".format(sign_in_username_input))
-                    placeholder.text(f'{sign_in_username_input}')
+                    account_tab.success("Logged In as {}".format(sign_in_username_input))
+                    current_user = st.header(f"User: {sign_in_username_input}")
+                    dashboard_selectbox = st.selectbox("Dashboard", ["Classify Risk", "Show Risk Model", "Reports"])
+                    if dashboard_selectbox == "Classify Risk":
+                        classify_risk_container = st.beta_container()
+                        with classify_risk_container:
+                            st.header("Classify Risk")
+                            st.write("Put your work here")
+                            
+                    elif dashboard_selectbox == "Show Risk Model":
+                        show_risk_model_container = st.beta_container()
+                        with show_risk_model_container:
+                            st.header("Show Risk Model")
+                            st.write("Put your work here")
+                            
+                    elif dashboard_selectbox == "Reports":
+                        reports_container = st.beta_container()
+                        with reports_container:
+                            st.header("Reports")
+                            st.write("Put your work here")
                 else:
                     st.warning("Incorrect Username/Password")
             
-    elif dashboard_selectbox == "Sign Up":
-        sign_up_container = st.beta_container()
-        with sign_up_container:
-            st.header("Sign Up")
-            sign_up_username_input = st.text_input("Username", max_chars=16)
-            sign_up_password_input = st.text_input("Password", type="password", max_chars=16)
-            sign_up_enter_button = st.button("Enter")
-            if sign_up_enter_button:
-                create_table_if_not_exists('users')
-                user_exists = check_if_user_exists(sign_up_username_input, 'users')
-                print(check_if_user_exists(sign_up_username_input, 'users'))
-                if user_exists == True:
-                    st.warning("Username Already Exists")
-                else:
-                    add_userdata(sign_up_username_input, generate_hash(sign_up_password_input), 'users')
-                    st.success("You have successfully created a valid account")
-                    st.info("Go To Sign In Menu")
-
-    elif dashboard_selectbox == "Classify Risk":
-        classify_risk_container = st.beta_container()
-        with classify_risk_container:
-            st.header("Classify Risk")
-            st.write("Put your work here")
-            
-    elif dashboard_selectbox == "Show Risk Model":
-        show_risk_model_container = st.beta_container()
-        with show_risk_model_container:
-            st.header("Show Risk Model")
-            st.write("Put your work here")
-            
-    elif dashboard_selectbox == "Reports":
-        reports_container = st.beta_container()
-        with reports_container:
-            st.header("Reports")
-            st.write("Put your work here")
-
+    elif account_selectbox == "Sign Up":
+        account_tab.header("Sign Up")
+        sign_up_username_input = account_tab.text_input("Username", max_chars=16)
+        sign_up_password_input = account_tab.text_input("Password", type="password", max_chars=16)
+        sign_up_enter_button = account_tab.button("Enter")
+        if sign_up_enter_button:
+            create_table_if_not_exists('users')
+            user_exists = check_if_user_exists(sign_up_username_input, 'users')
+            if user_exists == True:
+                account_tab.warning("Username Already Exists")
+            else:
+                add_userdata(sign_up_username_input, generate_hash(sign_up_password_input), 'users')
+                account_tab.success("You have successfully created a valid account")
+                account_tab.info("Go To Sign In Menu")
+                    
 if __name__ == '__main__':
 	main()

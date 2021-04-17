@@ -98,7 +98,7 @@ def main():
                     st.success("You have successfully created a valid account")
                     st.info("Go To Sign In Menu")
 
-    if risk_selectbox == "Classify Risk":
+    elif risk_selectbox == "Classify Risk":
         classify_risk_container = st.beta_container()
         with classify_risk_container:
             st.write("Put your work here")
