@@ -49,8 +49,8 @@ def view_all_users():
 def main():
     
     title = st.title("Titanic")
-    
     navigation_pane = st.sidebar
+    current_user = navigation_pane.header("")
     account_tab = navigation_pane.beta_expander("Account")
     account_selectbox = account_tab.selectbox("", ["Sign In", "Sign Up"])
     if account_selectbox == "Sign In":
@@ -63,21 +63,28 @@ def main():
                 result = login_user(sign_in_username_input, check_hashes(sign_in_password_input, hashed_sign_in_password), "users")
                 if result:
                     account_tab.success("Logged In as {}".format(sign_in_username_input))
-                    current_user = st.header(f"User: {sign_in_username_input}")
-                    dashboard_selectbox = st.selectbox("Dashboard", ["Classify Risk", "Show Risk Model", "Reports"])
-                    if dashboard_selectbox == "Classify Risk":
+                    current_user.header(f"{sign_in_username_input}")
+                    module_selectbox = st.selectbox("Module Selection", ["Dashboard", "Classify Risk", "Show Risk Model", "Reports"])
+                    
+                    if module_selectbox == "Dashboard":
+                        dashboard_container = st.beta_container()
+                        with dashboard_container:
+                            st.header("Dashboard")
+                            st.write("Put your work here")
+                            
+                    elif module_selectbox == "Classify Risk":
                         classify_risk_container = st.beta_container()
                         with classify_risk_container:
                             st.header("Classify Risk")
                             st.write("Put your work here")
                             
-                    elif dashboard_selectbox == "Show Risk Model":
+                    elif module_selectbox == "Show Risk Model":
                         show_risk_model_container = st.beta_container()
                         with show_risk_model_container:
                             st.header("Show Risk Model")
                             st.write("Put your work here")
                             
-                    elif dashboard_selectbox == "Reports":
+                    elif module_selectbox == "Reports":
                         reports_container = st.beta_container()
                         with reports_container:
                             st.header("Reports")
