@@ -70,7 +70,17 @@ def main():
                         dashboard_container = st.beta_container()
                         with dashboard_container:
                             st.header("Dashboard")
-                            st.write("Put your work here")
+                            onboarded_risks_container = st.beta_container()
+                            with onboarded_risks_container:
+                                st.write("Onboarded Risks")
+                                st.table()
+                            col1, col2 = st.beta_columns(2)
+                            with col1:
+                                st.write("Flagged Risks With Premium")
+                                st.table()
+                            with col2:
+                                st.write("Onboarded Premium/Revenue")
+                                st.table()
                             
                     elif module_selectbox == "Classify Risk":
                         classify_risk_container = st.beta_container()
