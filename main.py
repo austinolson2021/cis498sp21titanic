@@ -91,7 +91,7 @@ def main():
                     elif module_selectbox == "Show Risk Model":
                         show_risk_model_container = st.beta_container()
                         with show_risk_model_container:
-                            st.header("Show Risk Model")
+                            st.header("Train Risk Model")
                             st.write("Put your work here")
                             
                     elif module_selectbox == "Reports":
