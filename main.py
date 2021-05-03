@@ -57,12 +57,12 @@ def main():
             account_tab.header("Sign In")
             sign_in_username_input = account_tab.text_input("Username", max_chars=16)
             sign_in_password_input = account_tab.text_input("Password", type="password", max_chars=16)
-            sign_in_check_box = account_tab.checkbox("Enter")
+            sign_in_check_box = account_tab.checkbox("Log In")
             if sign_in_check_box:
                 hashed_sign_in_password = generate_hash(sign_in_password_input)
                 result = login_user(sign_in_username_input, check_hashes(sign_in_password_input, hashed_sign_in_password), "users")
                 if result:
-                    account_tab.success("Logged In as {}".format(sign_in_username_input))
+                    account_tab.success("Logged In As: {}".format(sign_in_username_input))
                     current_user.header(f"{sign_in_username_input}")
                     module_selectbox = st.selectbox("Module Selection", ["Dashboard", "Classify Risk", "Show Risk Model", "Reports"])
                     
