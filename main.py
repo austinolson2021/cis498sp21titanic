@@ -146,7 +146,15 @@ def run_model(df):
             st.write("Logistic regression model saved");    
 
 def classify_risk():
-    pickled_model,pickled_score =pickle.load(open("pickle_model_20210503-160534.pkl", 'rb'))
+
+    model_list =[]
+    for file_name in sorted(os.listdir('./'),reverse=True):
+        if fnmatch.fnmatch(file_name,'*.pkl'):
+            model_list.append(file_name)
+
+    pickled_model_file= st.selectbox("Load model from the list",model_list)    
+    #pickled_model,pickled_score =pickle.load(open("pickle_model_20210503-160534.pkl", 'rb'))
+    pickled_model,pickled_score =pickle.load(open(pickled_model_file, 'rb'))
     input_data =get_input_data()
 
     if st.button("Classify"):
