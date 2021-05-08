@@ -241,7 +241,7 @@ spyder @ file:///C:/ci/spyder_1617483544389/work
 spyder-kernels @ file:///C:/ci/spyder-kernels_1617396750486/work
 SQLAlchemy @ file:///C:/ci/sqlalchemy_1617396834044/work
 statsmodels==0.12.2
-streamlit==0.80.0
+streamlit==0.81.0 
 sympy @ file:///C:/ci/sympy_1608119646897/work
 tables==3.6.1
 tblib @ file:///tmp/build/80754af9/tblib_1597928476713/work
