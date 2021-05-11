@@ -5,6 +5,5 @@ matplotlib
 pickle5
 joblib
 sklearn
-fnmatch
 hashlib
 sqlite3
