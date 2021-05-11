@@ -226,7 +226,7 @@ def get_input_data():
 
 
 def get_reports():
-    report_selection=st.selectbox("Select",("View machine learning models","Other"))
+    report_selection=st.selectbox("Report Type",("View machine learning models","Other"))
     if report_selection == "View machine learning models":
         st.subheader('Models created from most recent to old')
         index= 1
@@ -301,7 +301,7 @@ def main():
                             get_reports()
 
                 else:
-                    st.warning("Incorrect Username/Password")
+                    account_tab.warning("Incorrect Username/Password")
             
     elif account_selectbox == "Sign Up":
         account_tab.header("Sign Up")
