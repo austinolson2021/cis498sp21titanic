@@ -2,7 +2,7 @@ streamlit
 pandas
 numpy
 matplotlib
-pickle
+pickle5
 joblib
 sklearn
 time
