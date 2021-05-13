@@ -156,16 +156,31 @@ def classify_risk():
     #pickled_model,pickled_score =pickle.load(open("pickle_model_20210503-160534.pkl", 'rb'))
     pickled_model,pickled_score =pickle.load(open(pickled_model_file, 'rb'))
     input_data =get_input_data()
+    input_data_np=np.array(input_data)
 
     if st.button("Classify"):
         st.write("Using coefficients from previously saved model...")
         st.write(pickled_model.coef_)
         #inputdata = [[col1,col2,col3,col4,col5,col6,col7,col8,col9,col10,col11,col12,col13,col14,col15]]; 
         scaler = load("scaler.joblib")
-        xtest_scaler = scaler.transform(input_data);        
+        xtest_scaler = scaler.transform(input_data_np);        
 
         y_predict =pickled_model.predict(xtest_scaler);
         y_prob = pickled_model.predict_proba(xtest_scaler)
+
+        if y_predict[0] == 1:
+            Onboarded = 'Y'
+            prob = round(y_prob[0,1]*100 , 2)
+            
+        if y_predict[0] == 0:    
+            Onboarded ='N'
+            prob = round(y_prob[0,0]*100 , 2)
+
+        #store values in db
+        create_riskinfo_table_if_not_exists()
+        insert_riskinfo(input_data[0][0],input_data[0][1], input_data[0][2], input_data[0][3], input_data[0][4], input_data[0][5], input_data[0][6], input_data[0][7], input_data[0][8], input_data[0][9], input_data[0][10], input_data[0][11], input_data[0][12], input_data[0][13], input_data[0][14], input_data[0][15],Onboarded,prob)
+
+        
         if y_predict[0] == 1:
             st.subheader('This risk is SAFE and can be onboarded.')
             st.subheader('Confidence level is {}%'.format(round(y_prob[0,1]*100 , 2)))
@@ -220,10 +235,11 @@ def get_input_data():
     with col15: 
         col15 = st.number_input("RentLimit",min_value=0,max_value=10000000,value=1000)
 
-    
-    input_data = [[col1,col2,col3,col4,col5,col6,col7,col8,col9,col10,col11,col12,col13,col14,col15]]
-    return np.array(input_data)
+    col16=st.number_input("Premium",min_value=0,max_value=10000000);
 
+    input_data = [[col1,col2,col3,col4,col5,col6,col7,col8,col9,col10,col11,col12,col13,col14,col15,col16]]
+    #return np.array(input_data)
+    return input_data
 
 def get_reports():
     report_selection=st.selectbox("Report Type",("View machine learning models","Other"))
@@ -242,6 +258,83 @@ def get_reports():
                 st.write(model_score)
                 index +=1
 
+def create_riskinfo_table_if_not_exists():
+    sql_create_riskinfo_table = """ CREATE TABLE IF NOT EXISTS riskinfo (
+                                    PropertyOrGLLossesInLast3Years INT NULL,
+                                    LeadOrMoldIssues INT NULL,
+                                    IsTransactionBackDated INT NULL,
+                                    OccupancyTypeCat INT NULL,
+                                    ConstructionTypeCat INT NULL,
+                                    TotalSquareFt INT NULL,
+                                    CommercialSQFt INT NULL,
+                                    YearBuilt INT NULL,
+                                    NbrOfStories INT NULL,
+                                    PercentageOccupied INT NULL,
+                                    AnyBuildingViolations INT NULL,
+                                    Mercantile INT NULL,
+                                    RenovationGutRehabEverDone INT NULL,
+                                    BuildingLimit INT NULL,
+                                    RentLimit INT NULL,
+                                    Premium REAL NULL,
+                                    IsOnboarded TEXT NULL,
+                                    Prob FLOAT NULL
+                                  ); """
+    c.execute(sql_create_riskinfo_table)
+
+def insert_riskinfo(col1,col2,col3,col4,col5,col6,col7,col8,col9,col10,col11,col12,col13,col14,col15,col16,Onboarded,prob):
+    c.execute('INSERT INTO riskinfo VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',(col1,col2,col3,col4,col5,col6,col7,col8,col9,col10,col11,col12,col13,col14,col15,col16,Onboarded,prob))
+    conn.commit()
+
+def get_dashboard_data():
+	c.execute('SELECT IsOnboarded,SUM(Premium),Count(1) FROM riskinfo Group by IsOnboarded order by IsOnboarded')
+	data = c.fetchall()
+	return data 
+
+def get_flagged_risk_info():
+	c.execute('SELECT rowid,* FROM riskinfo where IsOnboarded="N"')
+	data = c.fetchall()
+	return data
+
+
+def get_dashboard_info():
+    data = get_dashboard_data()
+    col1, col2 = st.beta_columns(2)
+        
+    with col1:
+        st.subheader("Onboarded ")
+        st.write("Premiums : $ " + str(data[1][1]))
+        st.write("Nbr of Risks : " + str(data[1][2]))
+            
+
+    with col2:
+        st.subheader("Flagged ")
+        st.write("Premiums : $ " + str(data[0][1]))
+        st.write("Nbr of Risks : " + str(data[0][2]))  
+            
+        
+    flaggeddata = get_flagged_risk_info()
+    st.header("Flagged Risks ")
+        
+    colheaders = st.beta_columns(8)
+    colheaders[0].write("Prop Losses")
+    colheaders[1].write("Lead Issues")
+    colheaders[2].write("Occ Type")
+    colheaders[3].write("Total SqFt") 
+    colheaders[4].write("Bldg Limit")
+    colheaders[5].write("YearBuilt")
+    colheaders[6].write("Premium")
+    colheaders[7].write("Prob%")
+
+    for i in flaggeddata:
+        cols = st.beta_columns(8)
+        cols[0].write(str(i[1]))
+        cols[1].write(str(i[2]))
+        cols[2].write(str(i[4]))
+        cols[3].write(str(i[6]))
+        cols[4].write(str(i[14]))
+        cols[5].write(str(i[8]))
+        cols[6].write(str(i[16]))
+        cols[7].write(str(i[18]))     
 
 def main():
     
@@ -264,10 +357,13 @@ def main():
                     module_selectbox = st.selectbox("Module Selection", ["Dashboard", "Train Model", "Classify Risk","Reports"])
                     
                     if module_selectbox == "Dashboard":
+                        """
                         dashboard_container = st.beta_container()
                         with dashboard_container:
                             st.header("Dashboard")
+                            
                             onboarded_risks_container = st.beta_container()
+                            
                             with onboarded_risks_container:
                                 st.write("Onboarded Risks")
                                 st.table()
@@ -278,6 +374,8 @@ def main():
                             with col2:
                                 st.write("Onboarded Premium/Revenue")
                                 st.table()
+                            """
+                        get_dashboard_info()   
                             
                     elif module_selectbox == "Classify Risk":
                         classify_risk_container = st.beta_container()
