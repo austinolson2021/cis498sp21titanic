@@ -336,6 +336,27 @@ def get_dashboard_info():
         cols[6].write(str(i[16]))
         cols[7].write(str(i[18]))     
 
+def notes():
+    #NOTES
+    """
+    dashboard_container = st.beta_container()
+    with dashboard_container:
+        st.header("Dashboard")
+        
+        onboarded_risks_container = st.beta_container()
+        
+        with onboarded_risks_container:
+            st.write("Onboarded Risks")
+            st.table()
+        col1, col2 = st.beta_columns(2)
+        with col1:
+            st.write("Flagged Risks With Premium")
+            st.table()
+        with col2:
+            st.write("Onboarded Premium/Revenue")
+            st.table()
+        """
+
 def main():
     
     title = st.title("Titanic")
@@ -357,24 +378,7 @@ def main():
                     module_selectbox = st.selectbox("Module Selection", ["Dashboard", "Train Model", "Classify Risk","Reports"])
                     
                     if module_selectbox == "Dashboard":
-                        """
-                        dashboard_container = st.beta_container()
-                        with dashboard_container:
-                            st.header("Dashboard")
-                            
-                            onboarded_risks_container = st.beta_container()
-                            
-                            with onboarded_risks_container:
-                                st.write("Onboarded Risks")
-                                st.table()
-                            col1, col2 = st.beta_columns(2)
-                            with col1:
-                                st.write("Flagged Risks With Premium")
-                                st.table()
-                            with col2:
-                                st.write("Onboarded Premium/Revenue")
-                                st.table()
-                            """
+
                         get_dashboard_info()   
                             
                     elif module_selectbox == "Classify Risk":
