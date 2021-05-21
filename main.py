@@ -70,80 +70,82 @@ def train_model():
         st.write("File uploaded successfully. Reading the file...")         
         df = pd.read_csv(datafile)
         st.write(df)
-        run_model(df)  
+        run_model(df)
 
 def run_model(df):
         if st.button("Create a model"):
-            st.write("Running Logistic Regression...");    
-            
-            X = df.drop('OnboardResp', axis=1);
-            y = df['OnboardResp'];
-            X_train, X_test, y_train, y_test = train_test_split(X, y,test_size=0.3,random_state=0);
-            std_scaler = StandardScaler();
-            X_train_stdscaler = std_scaler.fit_transform(X_train);
-            X_test_stdscaler= std_scaler.transform(X_test);
-
-            logreg = LogisticRegression(random_state=0,solver='liblinear').fit(X_train_stdscaler, y_train);
-            st.write("Training set accuracy: {:.4f}".format(logreg.score(X_train_stdscaler, y_train)));
-            score = logreg.score(X_test_stdscaler, y_test)
-            st.write("Test set accuracy: {:.4f}".format(score))
-            
-            
-            st.write("Feature Importances: ");
-            #st.write(logreg.coef_);
-            
-            st.write(pd.DataFrame(zip(X_train.columns, np.transpose(logreg.coef_.tolist()[0])), columns=['features', 'coef']));
-            
-            y_pred = logreg.predict(X_test_stdscaler);
-            
-            conf_matrix = confusion_matrix(y_test, y_pred);
-            
-            TP = conf_matrix[1][1]
-            FP = conf_matrix[1][0]
-            TN = conf_matrix[0][0]
-            FN = conf_matrix[0][1]
-            plt.bar(['True Positive','False Positive','True Negative','False Negative'],[TP,FP,TN,FN])
-            st.pyplot(plt)
-            
-            st.write("Confusion Matrix - Actual vs Predicted",conf_matrix);
-            
-            st.write(classification_report(y_test, y_pred))
-            
-            #st.write("Classification Report",classification_report(y_test, y_pred));
-            
-            st.write("Creating AUC-ROC Curve");
-            logit_roc_auc = roc_auc_score(y_test, logreg.predict(X_test_stdscaler));
-            fpr, tpr, thresholds = roc_curve(y_test, logreg.predict_proba(X_test_stdscaler)[:,1]);
-            
-            plt.plot(fpr, tpr, label='Logistic Regression (area = %0.2f)' % logit_roc_auc);
-            
-            plt.figure();
-            plt.plot(fpr, tpr, label='Logistic Regression (area = %0.2f)' % logit_roc_auc);
-            plt.plot([0, 1], [0, 1],'r--');
-            plt.xlim([0.0, 1.0]);
-            plt.ylim([0.0, 1.05]);
-            plt.xlabel('False Positive Rate');
-            plt.ylabel('True Positive Rate');
-            plt.title('Receiver operating characteristic');
-            plt.legend(loc="lower right");
-            plt.savefig('Log_ROC');
-            st.pyplot(plt);
-            
-            st.write("AUC: %.3f" % metrics.auc(fpr, tpr));
-            st.write("Logistic Regression complete.");
-            
-            st.write("Saving the model...");
-            
-            pkl_filename = "pickle_model_" + time.strftime("%Y%m%d-%H%M%S") + ".pkl";
-            
-            dump(std_scaler, 'scaler.joblib')
-            
-            tuple_objects =(logreg,score)
-            
-            #pkl_filename = "pickle_model.pkl";
-            pickle.dump(tuple_objects, open(pkl_filename, 'wb'))
+            with st.spinner(text="In Progress"):
+                #st.write("Running Logistic Regression...");    
                 
-            st.write("Logistic regression model saved");    
+                X = df.drop('OnboardResp', axis=1);
+                y = df['OnboardResp'];
+                X_train, X_test, y_train, y_test = train_test_split(X, y,test_size=0.3,random_state=0);
+                std_scaler = StandardScaler();
+                X_train_stdscaler = std_scaler.fit_transform(X_train);
+                X_test_stdscaler= std_scaler.transform(X_test);
+    
+                logreg = LogisticRegression(random_state=0,solver='liblinear').fit(X_train_stdscaler, y_train);
+                st.write("Training set accuracy: {:.4f}".format(logreg.score(X_train_stdscaler, y_train)));
+                score = logreg.score(X_test_stdscaler, y_test)
+                st.write("Test set accuracy: {:.4f}".format(score))
+                
+                
+                st.write("Feature Importances: ");
+                #st.write(logreg.coef_);
+                
+                st.write(pd.DataFrame(zip(X_train.columns, np.transpose(logreg.coef_.tolist()[0])), columns=['features', 'coef']));
+                
+                y_pred = logreg.predict(X_test_stdscaler);
+                
+                conf_matrix = confusion_matrix(y_test, y_pred);
+                
+                TP = conf_matrix[1][1]
+                FP = conf_matrix[1][0]
+                TN = conf_matrix[0][0]
+                FN = conf_matrix[0][1]
+                plt.bar(['True Positive','False Positive','True Negative','False Negative'],[TP,FP,TN,FN])
+                st.pyplot(plt)
+                
+                st.write("Confusion Matrix - Actual vs Predicted",conf_matrix);
+                
+                st.write(classification_report(y_test, y_pred))
+                
+                #st.write("Classification Report",classification_report(y_test, y_pred));
+                
+                st.write("Creating AUC-ROC Curve");
+                logit_roc_auc = roc_auc_score(y_test, logreg.predict(X_test_stdscaler));
+                fpr, tpr, thresholds = roc_curve(y_test, logreg.predict_proba(X_test_stdscaler)[:,1]);
+                
+                plt.plot(fpr, tpr, label='Logistic Regression (area = %0.2f)' % logit_roc_auc);
+                
+                plt.figure();
+                plt.plot(fpr, tpr, label='Logistic Regression (area = %0.2f)' % logit_roc_auc);
+                plt.plot([0, 1], [0, 1],'r--');
+                plt.xlim([0.0, 1.0]);
+                plt.ylim([0.0, 1.05]);
+                plt.xlabel('False Positive Rate');
+                plt.ylabel('True Positive Rate');
+                plt.title('Receiver operating characteristic');
+                plt.legend(loc="lower right");
+                plt.savefig('Log_ROC');
+                st.pyplot(plt);
+                
+                st.write("AUC: %.3f" % metrics.auc(fpr, tpr));
+                #st.write("Logistic Regression complete.");
+                
+                #st.write("Saving the model...");
+                
+                pkl_filename = "pickle_model_" + time.strftime("%Y%m%d-%H%M%S") + ".pkl";
+                
+                dump(std_scaler, 'scaler.joblib')
+                
+                tuple_objects =(logreg,score)
+                
+                #pkl_filename = "pickle_model.pkl";
+                pickle.dump(tuple_objects, open(pkl_filename, 'wb'))
+                    
+                #st.write("Logistic regression model saved");
+                st.success("Done!")
 
 def classify_risk():
 
@@ -159,35 +161,46 @@ def classify_risk():
     input_data_np=np.array(input_data)
 
     if st.button("Classify"):
-        st.write("Using coefficients from previously saved model...")
-        st.write(pickled_model.coef_)
-        #inputdata = [[col1,col2,col3,col4,col5,col6,col7,col8,col9,col10,col11,col12,col13,col14,col15]]; 
-        scaler = load("scaler.joblib")
-        xtest_scaler = scaler.transform(input_data_np);        
-
-        y_predict =pickled_model.predict(xtest_scaler);
-        y_prob = pickled_model.predict_proba(xtest_scaler)
-
-        if y_predict[0] == 1:
-            Onboarded = 'Y'
-            prob = round(y_prob[0,1]*100 , 2)
+        with st.spinner(text="In Progress"):
+            st.write("Using coefficients from previously saved model...")
+            st.write(pickled_model.coef_)
+            #inputdata = [[col1,col2,col3,col4,col5,col6,col7,col8,col9,col10,col11,col12,col13,col14,col15]]; 
+            scaler = load("scaler.joblib")
+            xtest_scaler = scaler.transform(input_data_np);        
+    
+            y_predict =pickled_model.predict(xtest_scaler);
+            y_prob = pickled_model.predict_proba(xtest_scaler)
+    
+            if y_predict[0] == 1:
+                Onboarded = 'Y'
+                prob = round(y_prob[0,1]*100 , 2)
+                
+            if y_predict[0] == 0:    
+                Onboarded ='N'
+                prob = round(y_prob[0,0]*100 , 2)
+    
+            #store values in db
+            create_riskinfo_table_if_not_exists()
+            insert_riskinfo(input_data[0][0],input_data[0][1], input_data[0][2], input_data[0][3], input_data[0][4], input_data[0][5], input_data[0][6], input_data[0][7], input_data[0][8], input_data[0][9], input_data[0][10], input_data[0][11], input_data[0][12], input_data[0][13], input_data[0][14], input_data[0][15],Onboarded,prob)
+    
             
-        if y_predict[0] == 0:    
-            Onboarded ='N'
-            prob = round(y_prob[0,0]*100 , 2)
+            if y_predict[0] == 1:
+                st.subheader('This risk is SAFE and can be onboarded.')
+                st.subheader('Confidence level is {}%'.format(round(y_prob[0,1]*100 , 2)))
+            else:
+                st.subheader('This risk is CONCERNING. Suggest NOT TO onboard.')
+                st.subheader('Confidence level is {}%'.format(round(y_prob[0,0]*100 , 2)))        
+            
 
-        #store values in db
-        create_riskinfo_table_if_not_exists()
-        insert_riskinfo(input_data[0][0],input_data[0][1], input_data[0][2], input_data[0][3], input_data[0][4], input_data[0][5], input_data[0][6], input_data[0][7], input_data[0][8], input_data[0][9], input_data[0][10], input_data[0][11], input_data[0][12], input_data[0][13], input_data[0][14], input_data[0][15],Onboarded,prob)
+            dffilename = "Data_" + time.strftime("%Y%m%d-%H%M%S") + ".csv"
+            collist = ['PropertyOrGLLossesInLast3Years','LeadOrMoldIssues','TranBackDt','OccupancyTypeCat','ConstructionTypeCat','TotalSquareFeet','CommercialSquareFeet','YearBuilt','NumberOfStories','PercentageOccupied','AnyBuildingViolations','Mercantile','RenovationGutRehabEverDone','BuildingLimit','RentLimit','Premium']
+            #input_data = np.append(y_predict[0],input_data_np[0])
+            df = pd.DataFrame(input_data_np,columns= collist) 
+            df['Prediction'],df['Probability'] = [y_predict[0],prob]        
+            df.to_csv(dffilename)
+            st.write("Data exported to " + dffilename)  
 
-        
-        if y_predict[0] == 1:
-            st.subheader('This risk is SAFE and can be onboarded.')
-            st.subheader('Confidence level is {}%'.format(round(y_prob[0,1]*100 , 2)))
-        else:
-            st.subheader('This risk is CONCERNING. Suggest NOT TO onboard.')
-            st.subheader('Confidence level is {}%'.format(round(y_prob[0,0]*100 , 2)))        
-
+            st.success("Done!")             
 
 def get_input_data():
     col1,col2,col3 = st.beta_columns(3)
@@ -295,6 +308,11 @@ def get_flagged_risk_info():
 	data = c.fetchall()
 	return data
 
+def get_onboarded_risk_info():
+    c.execute('SELECT rowid,* FROM riskinfo where IsOnboarded="Y"')
+    data = c.fetchall()
+    return data     
+
 
 def get_dashboard_info():
     data = get_dashboard_data()
@@ -314,27 +332,51 @@ def get_dashboard_info():
         
     flaggeddata = get_flagged_risk_info()
     st.header("Flagged Risks ")
-        
-    colheaders = st.beta_columns(8)
-    colheaders[0].write("Prop Losses")
-    colheaders[1].write("Lead Issues")
-    colheaders[2].write("Occ Type")
-    colheaders[3].write("Total SqFt") 
-    colheaders[4].write("Bldg Limit")
-    colheaders[5].write("YearBuilt")
-    colheaders[6].write("Premium")
-    colheaders[7].write("Prob%")
 
-    for i in flaggeddata:
-        cols = st.beta_columns(8)
-        cols[0].write(str(i[1]))
-        cols[1].write(str(i[2]))
-        cols[2].write(str(i[4]))
-        cols[3].write(str(i[6]))
-        cols[4].write(str(i[14]))
-        cols[5].write(str(i[8]))
-        cols[6].write(str(i[16]))
-        cols[7].write(str(i[18]))     
+    if len(flaggeddata) > 0:    
+        colheaders = st.beta_columns(8)
+        colheaders[0].write("Prop Losses")
+        colheaders[1].write("Lead Issues")
+        colheaders[2].write("Occ Type")
+        colheaders[3].write("Total SqFt") 
+        colheaders[4].write("Bldg Limit")
+        colheaders[5].write("YearBuilt")
+        colheaders[6].write("Premium")
+        colheaders[7].write("Prob%")
+
+        for i in flaggeddata:
+            cols = st.beta_columns(8)
+            cols[0].write(str(i[1]))
+            cols[1].write(str(i[2]))
+            cols[2].write(str(i[4]))
+            cols[3].write(str(i[6]))
+            cols[4].write(str(i[14]))
+            cols[5].write(str(i[8]))
+            cols[6].write(str(i[16]))
+            cols[7].write(str(i[18]))    
+
+        onboarded = get_onboarded_risk_info()
+        st.header("Onboarded Risks ")
+        if len(onboarded) > 0:
+            colheaders = st.beta_columns(8)
+            colheaders[0].write("Prop Losses")
+            colheaders[1].write("Lead Issues")
+            colheaders[2].write("Occ Type")
+            colheaders[3].write("Total SqFt") 
+            colheaders[4].write("Bldg Limit")
+            colheaders[5].write("YearBuilt")
+            colheaders[6].write("Premium")
+            colheaders[7].write("Prob%")
+            for i in onboarded:
+                cols = st.beta_columns(8)
+                cols[0].write(str(i[1]))
+                cols[1].write(str(i[2]))
+                cols[2].write(str(i[4]))
+                cols[3].write(str(i[6]))
+                cols[4].write(str(i[14]))
+                cols[5].write(str(i[8]))
+                cols[6].write(str(i[16]))
+                cols[7].write(str(i[18]))              
 
 def notes():
     #NOTES
@@ -360,6 +402,7 @@ def notes():
 def main():
     
     title = st.title("Titanic")
+    logo = st.image('logo.png')
     navigation_pane = st.sidebar
     current_user = navigation_pane.header("")
     account_tab = navigation_pane.beta_expander("Account")
