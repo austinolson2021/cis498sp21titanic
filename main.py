@@ -190,7 +190,17 @@ def classify_risk():
             else:
                 st.subheader('This risk is CONCERNING. Suggest NOT TO onboard.')
                 st.subheader('Confidence level is {}%'.format(round(y_prob[0,0]*100 , 2)))        
-            st.success("Done!")
+            
+
+            dffilename = "Data_" + time.strftime("%Y%m%d-%H%M%S") + ".csv"
+            collist = ['PropertyOrGLLossesInLast3Years','LeadOrMoldIssues','TranBackDt','OccupancyTypeCat','ConstructionTypeCat','TotalSquareFeet','CommercialSquareFeet','YearBuilt','NumberOfStories','PercentageOccupied','AnyBuildingViolations','Mercantile','RenovationGutRehabEverDone','BuildingLimit','RentLimit','Premium']
+            #input_data = np.append(y_predict[0],input_data_np[0])
+            df = pd.DataFrame(input_data_np,columns= collist) 
+            df['Prediction'],df['Probability'] = [y_predict[0],prob]        
+            df.to_csv(dffilename)
+            st.write("Data exported to " + dffilename)  
+
+            st.success("Done!")             
 
 def get_input_data():
     col1,col2,col3 = st.beta_columns(3)
@@ -298,6 +308,11 @@ def get_flagged_risk_info():
 	data = c.fetchall()
 	return data
 
+def get_onboarded_risk_info():
+    c.execute('SELECT rowid,* FROM riskinfo where IsOnboarded="Y"')
+    data = c.fetchall()
+    return data     
+
 
 def get_dashboard_info():
     data = get_dashboard_data()
@@ -317,27 +332,51 @@ def get_dashboard_info():
         
     flaggeddata = get_flagged_risk_info()
     st.header("Flagged Risks ")
-        
-    colheaders = st.beta_columns(8)
-    colheaders[0].write("Prop Losses")
-    colheaders[1].write("Lead Issues")
-    colheaders[2].write("Occ Type")
-    colheaders[3].write("Total SqFt") 
-    colheaders[4].write("Bldg Limit")
-    colheaders[5].write("YearBuilt")
-    colheaders[6].write("Premium")
-    colheaders[7].write("Prob%")
 
-    for i in flaggeddata:
-        cols = st.beta_columns(8)
-        cols[0].write(str(i[1]))
-        cols[1].write(str(i[2]))
-        cols[2].write(str(i[4]))
-        cols[3].write(str(i[6]))
-        cols[4].write(str(i[14]))
-        cols[5].write(str(i[8]))
-        cols[6].write(str(i[16]))
-        cols[7].write(str(i[18]))     
+    if len(flaggeddata) > 0:    
+        colheaders = st.beta_columns(8)
+        colheaders[0].write("Prop Losses")
+        colheaders[1].write("Lead Issues")
+        colheaders[2].write("Occ Type")
+        colheaders[3].write("Total SqFt") 
+        colheaders[4].write("Bldg Limit")
+        colheaders[5].write("YearBuilt")
+        colheaders[6].write("Premium")
+        colheaders[7].write("Prob%")
+
+        for i in flaggeddata:
+            cols = st.beta_columns(8)
+            cols[0].write(str(i[1]))
+            cols[1].write(str(i[2]))
+            cols[2].write(str(i[4]))
+            cols[3].write(str(i[6]))
+            cols[4].write(str(i[14]))
+            cols[5].write(str(i[8]))
+            cols[6].write(str(i[16]))
+            cols[7].write(str(i[18]))    
+
+        onboarded = get_onboarded_risk_info()
+        st.header("Onboarded Risks ")
+        if len(onboarded) > 0:
+            colheaders = st.beta_columns(8)
+            colheaders[0].write("Prop Losses")
+            colheaders[1].write("Lead Issues")
+            colheaders[2].write("Occ Type")
+            colheaders[3].write("Total SqFt") 
+            colheaders[4].write("Bldg Limit")
+            colheaders[5].write("YearBuilt")
+            colheaders[6].write("Premium")
+            colheaders[7].write("Prob%")
+            for i in onboarded:
+                cols = st.beta_columns(8)
+                cols[0].write(str(i[1]))
+                cols[1].write(str(i[2]))
+                cols[2].write(str(i[4]))
+                cols[3].write(str(i[6]))
+                cols[4].write(str(i[14]))
+                cols[5].write(str(i[8]))
+                cols[6].write(str(i[16]))
+                cols[7].write(str(i[18]))              
 
 def notes():
     #NOTES
